@@ -39,11 +39,13 @@
 #include <boost/any.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <list>
+#include "../tags/Array.hpp"
 
 namespace metaSMT {
   namespace solver {
     namespace predtags = ::metaSMT::logic::tag;
     namespace bvtags = ::metaSMT::logic::QF_BV::tag;
+    namespace arraytags = ::metaSMT::logic::Array::tag;
 
     /**
      * @ingroup Backend
@@ -66,6 +68,30 @@ namespace metaSMT {
 
       ~CVC4() {
       }
+
+	result_type operator() (arraytags::array_var_tag const &var,
+                              boost::any const & ) {
+		if (var.id == 0 ) {
+		  throw std::runtime_error("uninitialized array used");
+		}
+		::CVC4::Type elementType = exprManager_.mkBitVectorType(var.elem_width);
+		::CVC4::Type indexType = exprManager_.mkBitVectorType(var.index_width);
+		::CVC4::Type arrayType = exprManager_.mkArrayType(indexType, elementType);
+		return exprManager_.mkVar(arrayType);
+	}
+
+	result_type operator() (arraytags::select_tag const &
+                              , result_type const &array
+                              , result_type const &index) {
+	return exprManager_.mkExpr(::CVC4::kind::SELECT, array, index);
+}
+
+	result_type operator() (arraytags::store_tag const &
+                              , result_type const &array
+                              , result_type const &index
+                              , result_type const &value) {
+	return exprManager_.mkExpr(::CVC4::kind::STORE, array, index, value);
+	}
 
       void assertion( result_type e ) {
         assertions_.push_back( e );
