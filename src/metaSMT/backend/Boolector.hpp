@@ -35,8 +35,8 @@ namespace metaSMT {
       Boolector()
       {
         _btor = boolector_new();
-        boolector_set_opt(_btor, "model_gen", 1);
-        boolector_set_opt(_btor, "incremental", 1);
+        boolector_set_opt(_btor, BTOR_OPT_MODEL_GEN, 1);
+        boolector_set_opt(_btor, BTOR_OPT_INCREMENTAL, 1);
       }
 
       ~Boolector() {
@@ -116,7 +116,7 @@ namespace metaSMT {
 
         result_type operator() (predtags::var_tag const & , boost::any )
         {
-          return ptr(boolector_var(_btor, 1, NULL));
+          return ptr(boolector_var(_btor, boolector_bitvec_sort (_btor, 1), NULL));
         }
 
         result_type operator() (predtags::false_tag , boost::any ) {
@@ -133,7 +133,7 @@ namespace metaSMT {
 
         result_type operator() (bvtags::var_tag const & var, boost::any ) {
           assert ( var.width != 0 );
-          return ptr(boolector_var(_btor, var.width, NULL));
+          return ptr(boolector_var(_btor, boolector_bitvec_sort (_btor, var.width), NULL));
         }
 
         result_type operator() (bvtags::bit0_tag , boost::any ) {
@@ -162,7 +162,7 @@ namespace metaSMT {
             }
             return ptr( boolector_const(_btor, val.c_str()) );
           } else {
-            return ptr(boolector_unsigned_int(_btor, value , width ));
+            return ptr(boolector_unsigned_int(_btor, value , boolector_bitvec_sort(_btor,width) ));
           }
         }
 
@@ -185,7 +185,7 @@ namespace metaSMT {
             }
             return ptr( boolector_const(_btor, val.c_str()) );
           } else {
-            return ptr( boolector_int(_btor, value, width) );
+            return ptr( boolector_int(_btor, value, boolector_bitvec_sort (_btor, width)) );
           }
         }
 
@@ -286,7 +286,7 @@ namespace metaSMT {
         result_type operator() (arraytags::array_var_tag const & var
                                 , boost::any )
         {
-          return ptr(boolector_array(_btor, var.elem_width, var.index_width, NULL));
+          return ptr(boolector_array(_btor, boolector_array_sort (_btor, boolector_bitvec_sort (_btor,var.elem_width), boolector_bitvec_sort (_btor,var.index_width)), NULL));
         }
 
         result_type operator() (arraytags::select_tag const &
