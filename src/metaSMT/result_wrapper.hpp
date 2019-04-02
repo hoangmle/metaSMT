@@ -3,6 +3,7 @@
 #include <boost/mpl/vector.hpp>
 #include <boost/variant.hpp>
 #include <boost/logic/tribool.hpp>
+#include <boost/logic/tribool_io.hpp>
 #include <boost/dynamic_bitset.hpp>
 #include <boost/type_traits/is_signed.hpp>
 #include <boost/optional.hpp>
@@ -16,14 +17,14 @@
 #pragma warning (disable : 4146)
 
 namespace metaSMT {
-  /** 
+  /**
    * return value wrapper
    *
-   */ 
+   */
   class result_wrapper {
 
     // converter types
-    struct as_vector_tribool 
+    struct as_vector_tribool
     {
       typedef std::vector<boost::logic::tribool > result_type;
 
@@ -54,9 +55,9 @@ namespace metaSMT {
         result_type ret(size);
         for (unsigned i = 0; i < size; ++i) {
           switch(s[size-i-1]){
-            case '0': 
+            case '0':
               ret[i] = false; break;
-            case '1': 
+            case '1':
               ret[i] = true; break;
             default:
               ret[i] = boost::logic::indeterminate;
@@ -66,7 +67,7 @@ namespace metaSMT {
       }
     };
 
-    struct as_tribool 
+    struct as_tribool
     {
       typedef boost::logic::tribool result_type;
 
@@ -97,9 +98,9 @@ namespace metaSMT {
         boost::logic::tribool ret = false;
         for (unsigned i = 0; i < s.size(); ++i) {
         switch(s[i]){
-          case '0': 
+          case '0':
             break;
-          case '1': 
+          case '1':
             return true;
           default:
             ret = boost::logic::indeterminate;
@@ -117,9 +118,9 @@ namespace metaSMT {
       result_type operator() ( result_type const & v ) const
       { return v; }
 
-      result_type operator() ( boost::logic::tribool t) {
+      result_type operator() ( boost::logic::tribool t) const {
         result_type ret(1);
-        ret[0] = t;
+        ret[0] = static_cast<bool>(t);
         return ret;
       }
 
@@ -132,7 +133,7 @@ namespace metaSMT {
       result_type operator() ( std::vector< boost::logic::tribool > vt ) const {
         result_type ret(vt.size());
         for (unsigned i = 0; i < vt.size(); ++i)
-         ret[i] = vt[i];
+         ret[i] = static_cast<bool>(vt[i]);
         return ret;
       }
 
@@ -146,7 +147,7 @@ namespace metaSMT {
 
     struct as_string
     {
-      typedef std::string result_type; 
+      typedef std::string result_type;
 
       result_type operator() ( result_type const & v ) const {
         return v;
@@ -189,7 +190,7 @@ namespace metaSMT {
 
     struct check_if_X
     {
-      typedef bool result_type; 
+      typedef bool result_type;
 
       template<typename T>
       result_type operator() ( T const & ) const {
@@ -199,7 +200,7 @@ namespace metaSMT {
       result_type operator() ( boost::logic::tribool val ) const {
         return boost::logic::indeterminate(val);
       }
-        
+
       result_type operator() ( std::vector< boost::logic::tribool > val ) const {
         unsigned size = val.size();
         for (unsigned i = 0; i < size; ++i) {
@@ -236,9 +237,9 @@ namespace metaSMT {
       result_wrapper( bool b ) : r (boost::logic::tribool(b)) { }
       result_wrapper( std::string const & s ) : r (boost::algorithm::to_upper_copy(s)) { }
       result_wrapper( const char* s ) : r(boost::algorithm::to_upper_copy(std::string(s))) { }
-      result_wrapper( const char c ) 
-      : r (c=='1' ? boost::logic::tribool(true) 
-        : (c=='0' ? boost::logic::tribool(false) 
+      result_wrapper( const char c )
+      : r (c=='1' ? boost::logic::tribool(true)
+        : (c=='0' ? boost::logic::tribool(false)
         : boost::logic::tribool(boost::logic::indeterminate))
         )
       { }
@@ -304,7 +305,7 @@ namespace metaSMT {
        * The result of this operator might thus be different from the compiler's behavior as a signed
        * downcast is implementation-defined.
        */
-      template< typename Integer> 
+      template< typename Integer>
       operator Integer () const {
         Integer ret = 0;
         std::string val = *this;
@@ -333,7 +334,7 @@ namespace metaSMT {
         if (b) return true;
         else if (!b) return false;
         else return _rng && random_bit();
-      } 
+      }
 
       operator boost::logic::tribool () const {
         return boost::apply_visitor(as_tribool(), r);
@@ -351,7 +352,7 @@ namespace metaSMT {
     result_type r;
     Rng _rng;
   };
-  
+
 } // namespace metaSMT
 
 //  vim: ft=cpp:ts=2:sw=2:expandtab

@@ -68,7 +68,7 @@ void check_conversion_XXX( result_wrapper const & rw)
 void check_conversion_0_in_8bit( result_wrapper const & rw)
 {
   tribool tri = rw;
-  BOOST_REQUIRE_EQUAL( tri, false);
+  BOOST_REQUIRE_EQUAL( static_cast<bool>(tri), false);
 
   bool boolean = rw;
   BOOST_REQUIRE_EQUAL( boolean, false);
@@ -106,7 +106,7 @@ void check_conversion_0_in_8bit( result_wrapper const & rw)
 void check_conversion_1_in_8bit( result_wrapper const & rw)
 {
   tribool tri = rw;
-  BOOST_REQUIRE_EQUAL( tri, true);
+  BOOST_REQUIRE_EQUAL( static_cast<bool>(tri), true);
 
   bool boolean = rw;
   BOOST_REQUIRE_EQUAL( boolean, true);
@@ -145,7 +145,7 @@ void check_conversion_1_in_8bit( result_wrapper const & rw)
 void check_conversion_128_in_8bit( result_wrapper const & rw)
 {
   tribool tri = rw;
-  BOOST_REQUIRE_EQUAL( tri, true);
+  BOOST_REQUIRE_EQUAL( static_cast<bool>(tri), true);
 
   bool boolean = rw;
   BOOST_REQUIRE_EQUAL( boolean, true);
@@ -208,7 +208,7 @@ void check_conversion_from_integer(Integer value) {
 
   tribool tri = rw;
   // only check if value is not truncated
-  if (std::numeric_limits<Integer>::digits <= width) BOOST_REQUIRE_EQUAL( tri, true );
+  if (std::numeric_limits<Integer>::digits <= width) BOOST_REQUIRE_EQUAL( static_cast<bool>(tri), true );
 
   bool boolean = rw;
   // only check if value is not truncated
@@ -237,7 +237,7 @@ void check_conversion_from_integer(Integer value) {
 void check_conversion_13_in_8bit( result_wrapper const & rw)
 {
   tribool tri = rw;
-  BOOST_REQUIRE_EQUAL( tri, true);
+  BOOST_REQUIRE_EQUAL( static_cast<bool>(tri), true);
 
   bool boolean = rw;
   BOOST_REQUIRE_EQUAL( boolean, true);
@@ -280,7 +280,7 @@ void check_conversion_true( result_wrapper const & rw)
   using boost::logic::tribool;
 
   tribool tri = rw;
-  BOOST_REQUIRE_EQUAL( tri, true);
+  BOOST_REQUIRE_EQUAL( static_cast<bool>(tri), true);
 
   bool boolean = rw;
   BOOST_REQUIRE_EQUAL( boolean, true);
@@ -319,7 +319,7 @@ void check_conversion_false( result_wrapper const & rw)
   using boost::logic::tribool;
 
   tribool tri = rw;
-  BOOST_REQUIRE_EQUAL( tri, false);
+  BOOST_REQUIRE_EQUAL( static_cast<bool>(tri), false);
 
   bool boolean = rw;
   BOOST_REQUIRE_EQUAL( boolean, false);
@@ -394,10 +394,10 @@ BOOST_AUTO_TEST_CASE( tribool_from_string )
 {
   boost::logic::tribool t;
   t = result_wrapper ("1");
-  BOOST_REQUIRE_EQUAL(t, true);
+  BOOST_REQUIRE_EQUAL(static_cast<bool>(t), true);
 
   t = result_wrapper ("0");
-  BOOST_REQUIRE_EQUAL(t, false);
+  BOOST_REQUIRE_EQUAL(static_cast<bool>(t), false);
 
 	t = result_wrapper ("X");
   BOOST_REQUIRE(boost::logic::indeterminate(t));
@@ -409,10 +409,10 @@ BOOST_AUTO_TEST_CASE( tribool_from_char )
 {
   boost::logic::tribool t;
   t = result_wrapper ('1');
-  BOOST_REQUIRE_EQUAL(t, true);
+  BOOST_REQUIRE_EQUAL(static_cast<bool>(t), true);
 
   t = result_wrapper ('0');
-  BOOST_REQUIRE_EQUAL(t, false);
+  BOOST_REQUIRE_EQUAL(static_cast<bool>(t), false);
 
 	t = result_wrapper ('X');
   BOOST_REQUIRE(boost::logic::indeterminate(t));
@@ -524,7 +524,7 @@ BOOST_AUTO_TEST_CASE( from_vector_tribool )
   vec[0]=false;
   vec[7]=true;
   check_conversion_128_in_8bit( result_wrapper(vec) );
-  
+
   // check for 13 in 8bit
   vec[0]=true;
   vec[2]=true;
