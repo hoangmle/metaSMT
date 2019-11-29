@@ -3,6 +3,11 @@ variables:
 
 ### templates for docker images
 
+.ubuntu18: &ubuntu18
+  image: ubuntu:bionic
+  tags:
+  - docker
+
 .ubuntu16_x86: &ubuntu16_x86
   image: m0elnx/ubuntu-32bit:latest
   tags:
@@ -18,6 +23,11 @@ variables:
   tags:
   - docker
 
+.debian9: &debian9
+  image: debian:stretch
+  tags:
+  - docker
+
 .debian8: &debian8
   image: debian:jessie
   tags:
@@ -28,12 +38,12 @@ variables:
   script: &build_default
   - apt-get -qq update
   - apt-get -qq -y upgrade
-  - apt-get install -qq -y build-essential cmake git wget unzip zlib1g-dev python
+  - apt-get install -qq -y build-essential cmake git wget unzip zlib1g-dev python libboost-dev
   - NUM_JOBS=$[`nproc`-1]
   - if [ "$NUM_JOBS" -lt 1 ]; then NUM_JOBS=1; fi
   - git clone https://github.com/agra-uni-bremen/dependencies.git
   - if [ -z "$METASMT_SOLVERS" ]; then METASMT_SOLVERS=$METASMT_DEFAULT_SOLVERS; fi
-  - ./bootstrap.sh -d deps -m RELEASE build $METASMT_SOLVERS
+  - BOOST_ROOT=/usr ./bootstrap.sh -d deps -m RELEASE build $METASMT_SOLVERS
   - cd build
   - make -j $NUM_JOBS
   - ctest --output-on-failure --output-log tests.log || true
@@ -41,12 +51,20 @@ variables:
   - if [ -z "$MAX_FAILS" ]; then MAX_FAILS=10; fi
   - if [ "$NUM_FAILED" -gt "$MAX_FAILS" ]; then echo "Too many failures ($NUM_FAILED)"; exit 1; fi
 
+build_default_ubuntu18:
+  <<: *ubuntu18
+  script: *build_default
+
 build_default_ubuntu16:
   <<: *ubuntu16
   script: *build_default
 
 build_default_ubuntu14:
   <<: *ubuntu14
+  script: *build_default
+
+build_default_debian9:
+  <<: *debian9
   script: *build_default
 
 build_default_debian8:

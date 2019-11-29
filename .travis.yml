@@ -1,19 +1,21 @@
 language: cpp
-dist: trusty
+dist: xenial
 sudo: false
 
 env:
 # stable
-- metaSMTConfig="--academic"                                            # boolector with lingeling and minisat
-                                                                        # yices2
+- metaSMTConfig="--academic"                                            # boolector-2.4.1 with lingeling and minisat
+                                                                        # yices-2.5.2
 - metaSMTConfig="--academic -DmetaSMT_REQUIRE_CXX11=off"                # now without C++11
                                                                         # 
+- metaSMTConfig="-b boolector-3.0.0"                                    # boolector-3.0.0
+- metaSMTConfig="-b yices-2.6.1"                                        # yices-2.6.1
 - metaSMTConfig="-b Z3-4.5.0-ubuntu-14.04-x64"                          # z3 4.5.0 pre-built
-- metaSMTConfig="-b Z3-4.5.0"                                           # z3 4.5.0
-- metaSMTConfig="-b cvc4-1.5"                                           # cvc4 1.5
-- metaSMTConfig="-b stp-2.3.1-basic -b minisat-git"                     # stp 2.3.1 with minisat
-- metaSMTConfig="--non-free"                                            # sword
-- metaSMTConfig="--non-free" BOOST_VERSION=1.60.0                       # sword and boost-1.60.0
+- metaSMTConfig="-b Z3-4.5.0-ubuntu-14.04-x64" BOOST_VERSION=1.60.0     # z3 4.5.0 pre-built and boost-1.60.0
+- metaSMTConfig="-b Z3-4.5.0-ubuntu-14.04-x64" BOOST_VERSION=1.70.0     # z3 4.5.0 pre-built and boost-1.70.0
+- metaSMTConfig="-b Z3-4.8.4"                                           # z3 4.8.4
+- metaSMTConfig="-b cvc4-1.6"                                           # cvc4 1.6
+- metaSMTConfig="-b stp-2.3.3-basic -b minisat-git"                     # stp 2.3.3 with minisat
 - metaSMTConfig="-b aiger-20071012 -b picosat-936 -b cudd-3.0.0"        # others
 # unstable
 - metaSMTConfig="-b stp-git -b cryptominisat-git -b minisat-git"        # stp upstream with cryptominisat and minisat
@@ -29,9 +31,9 @@ matrix:
   - compiler: clang
     env: metaSMTConfig="-b Z3-git"
   - compiler: clang
-    env: metaSMTConfig="-b Z3-4.5.0"
+    env: metaSMTConfig="-b Z3-4.8.4"
   - compiler: gcc
-    env: metaSMTConfig="-b cvc4-1.5"
+    env: metaSMTConfig="-b cvc4-1.6"
   - compiler: gcc
     env: metaSMTConfig="-b cvc4-unstable"
   - compiler: clang
@@ -52,13 +54,8 @@ matrix:
 
 addons:
   apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    - boost-latest
     packages:
-    - libboost1.55-dev
-    - g++-4.8
-    - gcc-4.8
+    - libboost-dev
     - libgmp-dev
     - gperf # required by yices2
 
@@ -80,7 +77,7 @@ before_install:
       else
         export BOOST_ROOT=/usr
       fi
-  - if [[ "${CXX}" == "g++" ]]; then export CXX="g++-4.8" CC="gcc-4.8" DEPS="deps-gcc"; fi
+  - if [[ "${CXX}" == "g++" ]]; then export DEPS="deps-gcc"; fi
   - if [[ "${CXX}" == "clang++" ]]; then export DEPS="deps-clang"; fi
   - ./bootstrap.sh --deps ${DEPS} ${metaSMTConfig} -m RELEASE build/
 

@@ -57,7 +57,6 @@ include(cmake/config_file.cmake)
 # set all solvers to "on" with good support and experimental or
 # work in progress to "off"
 ###
-option(metaSMT_USE_SWORD      "try to use SWORD solver" on)
 option(metaSMT_USE_Boolector  "try to use Boolector solver" on)
 option(metaSMT_USE_Z3         "try to use Z3 solver" on)
 option(metaSMT_USE_STP        "try to use STP solver" on)
@@ -82,7 +81,6 @@ endif()
 
 if ( WIN32 )
   message(STATUS "Windows build: disable all solvers except z3!" )
-  set(metaSMT_USE_SWORD off)
   set(metaSMT_USE_Boolector  off)
   set(metaSMT_USE_STP off)
   set(metaSMT_USE_CVC4 off)
@@ -94,13 +92,6 @@ if ( WIN32 )
   set(metaSMT_USE_Aiger off)
   set(metaSMT_USE_CW off)
 endif()
-
-if(metaSMT_USE_SWORD AND NOT APPLE)
-  find_package(SWORD QUIET)
-else()
-  set(SWORD_FOUND 0)
-endif()
-set_package_info(SWORD "solver for SMT QF_BV")
 
 if(metaSMT_USE_Boolector)
   find_package(Boolector QUIET)
@@ -181,6 +172,11 @@ else()
   set(GMPXX_LIBRARIES "")
 endif()
 
+if(Boolector_FOUND AND (Boolector_VERSION VERSION_GREATER 2))
+  find_package(Threads)
+  set(Boolector_LIBRARIES ${Boolector_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+endif()
+
 if(Z3_FOUND)
   find_package(OpenMP)
   if (OPENMP_FOUND)
@@ -218,6 +214,21 @@ int main(int argc, const char *argv[]) {
     message(WARNING "Disabling Z3 due to linking errors.")
     set( Z3_FOUND 0)
   endif()
+
+  check_CXX_source_compiles("#include <z3++.h>
+int main(int argc, const char *argv[]) {
+  z3::context c;
+  z3::expr e(c);
+  unsigned long long val = 0;
+  Z3_get_numeral_uint64(0, e, &val);
+  return 0;
+}"
+  Z3_ULL_API)
+
+  if( Z3_ULL_API )
+    set(Z3_CXXFLAGS "${Z3_CXXFLAGS} -DmetaSMT_Z3_ULL_API")
+  endif()
+
 endif()
 
 if(CVC4_FOUND)
@@ -254,12 +265,6 @@ endif ()
 
 set(metaSMT_AVAILABLE_QF_ABV_SOLVERS "")
 set(metaSMT_INCLUDES ${Boost_INCLUDE_DIRS})
-
-if(SWORD_FOUND)
-  config_find(SWORD ${SWORD_DIR})
-  list(APPEND metaSMT_LIBS ${SWORD_LIBRARIES})
-  list(APPEND metaSMT_INCLUDES ${SWORD_INCLUDE_DIR})
-endif()
 
 if(Boolector_FOUND)
   config_find(Boolector ${Boolector_DIR})

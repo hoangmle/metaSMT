@@ -337,14 +337,14 @@ BOOST_AUTO_TEST_CASE( read_value_eq_t )
  
   BOOST_CHECK_EQUAL( xvt.size(), 1u );
   BOOST_CHECK_EQUAL( yvt.size(), 1u );
-  BOOST_CHECK_EQUAL( xvt.at(0), yvt.at(0) );
+  BOOST_CHECK( static_cast<bool>(xvt.at(0) == yvt.at(0)) );
   
   // dynamic_bitset
   dynamic_bitset<> xd = read_value(ctx, x);
   dynamic_bitset<> yd = read_value(ctx, y);
   BOOST_CHECK_EQUAL( xd.size(), 1u );
   BOOST_CHECK_EQUAL( yd.size(), 1u );
-  BOOST_CHECK_EQUAL( xd[0], yvt[0] );
+  BOOST_CHECK_EQUAL( xd[0], yd[0] );
 
   // string
   std::string xs = read_value(ctx, x);
@@ -385,14 +385,14 @@ BOOST_AUTO_TEST_CASE( read_value_t )
  
   BOOST_CHECK_EQUAL( xvt.size(), 1u );
   BOOST_CHECK_EQUAL( yvt.size(), 1u );
-  BOOST_CHECK_NE( xvt.at(0), yvt.at(0) );
+  BOOST_CHECK( static_cast<bool>(xvt.at(0) != yvt.at(0)) );
 
   // dynamic_bitset
   dynamic_bitset<> xd = read_value(ctx, x);
   dynamic_bitset<> yd = read_value(ctx, y);
   BOOST_CHECK_EQUAL( xd.size(), 1u );
   BOOST_CHECK_EQUAL( yd.size(), 1u );
-  BOOST_CHECK_NE( xd[0], yvt[0] );
+  BOOST_CHECK_NE( xd[0], yd[0] );
 
   // string
   std::string xs = read_value(ctx, x);

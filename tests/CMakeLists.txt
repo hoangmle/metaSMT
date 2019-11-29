@@ -83,8 +83,6 @@ endfunction(add_test_executable)
 
 add_test_executable( result_wrapper test_result_wrapper.cpp)
 
-add_test_executable( direct_SWORD direct_SWORD2.cpp REQUIRES SWORD_FOUND )
-
 add_test_executable( direct_CUDD direct_CUDD.cpp REQUIRES CUDD_FOUND )
 add_test_executable( direct_BitBlast_CUDD direct_BitBlast_CUDD.cpp
   REQUIRES CUDD_FOUND)
@@ -98,7 +96,13 @@ add_test_executable( direct_Boolector direct_Boolector.cpp
 
 add_test_executable( direct_Yices2 direct_Yices2.cpp REQUIRES YICES2_FOUND )
 
-add_test_executable( direct_Z3 direct_Z3.cpp REQUIRES Z3_FOUND )
+if (NOT Z3_CXXFLAGS)
+  set(Z3_CXXFLAGS "-DZ3_DUMMY_FLAG")
+endif()
+add_test_executable( direct_Z3 direct_Z3.cpp
+  REQUIRES Z3_FOUND
+  PROPERTIES COMPILE_FLAGS "${Z3_CXXFLAGS}"
+  )
 
 add_test_executable( direct_STP direct_STP.cpp REQUIRES STP_FOUND )
 

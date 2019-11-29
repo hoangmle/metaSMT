@@ -13,17 +13,15 @@ ACADEMIC="
 "
 
 FREE="
-  Z3-4.5.0
-  cvc4-1.5
-  stp-2.3.1-basic
+  boolector-3.0.0
+  yices-2.6.1
+  Z3-4.8.4
+  cvc4-1.6
+  stp-2.3.3-basic
   minisat-git
   aiger-20071012
   picosat-936
   cudd-3.0.0
-"
-
-NONFREE="
-  SWORD-1.1
 "
 
 CMAKE=cmake
@@ -41,9 +39,8 @@ usage() {
 $0 sets up a metaSMT build directory.
 usage: $0 [--free] [--non-free] build
   --help          show this help
-  --academic      include academic license backends (Boolector, Lingeling)
-  --free          include free backends (Aiger, CUDD, CVC4, PicoSat, Z3, ...)
-  --non-free      include non-free backends (SWORD, Lingeling)
+  --academic      include academic license backends
+  --free          include free backends
   --clean         delete build directory before creating a new one
   --deps <dir>    build dependencies in this directory
    -d <dir>       can be shared in different projects
