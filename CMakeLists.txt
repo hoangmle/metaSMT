@@ -57,6 +57,7 @@ include(cmake/config_file.cmake)
 # set all solvers to "on" with good support and experimental or
 # work in progress to "off"
 ###
+option(metaSMT_USE_SWORD      "try to use SWORD solver" on)
 option(metaSMT_USE_Boolector  "try to use Boolector solver" on)
 option(metaSMT_USE_Z3         "try to use Z3 solver" on)
 option(metaSMT_USE_STP        "try to use STP solver" on)
@@ -80,18 +81,23 @@ if ( NOT TIMEOUT )
 endif()
 
 if ( WIN32 )
-  message(STATUS "Windows build: disable all solvers except z3!" )
+  message(STATUS "Windows build: disable all solvers except z3 or CUDD!" )
   set(metaSMT_USE_Boolector  off)
   set(metaSMT_USE_STP off)
   set(metaSMT_USE_CVC4 off)
   set(metaSMT_USE_YICES2 off)
-  set(metaSMT_USE_CUDD off)
   set(metaSMT_USE_MiniSat off)
   set(metaSMT_USE_picosat off)
   set(metaSMT_USE_lingeling off)
   set(metaSMT_USE_Aiger off)
   set(metaSMT_USE_CW off)
 endif()
+if(metaSMT_USE_SWORD AND NOT APPLE)
+  find_package(SWORD QUIET)
+else()
+  set(SWORD_FOUND 0)
+endif()
+set_package_info(SWORD "solver for SMT QF_BV")
 
 if(metaSMT_USE_Boolector)
   find_package(Boolector QUIET)
@@ -259,12 +265,23 @@ else ()
   set(Doxygen_FOUND 0)
 endif ()
 
+if(SWORD_FOUND)
+  config_find(SWORD ${SWORD_DIR})
+  list(APPEND metaSMT_LIBS ${SWORD_LIBRARIES})
+  list(APPEND metaSMT_INCLUDES ${SWORD_INCLUDE_DIR})
+endif()
 #############################################################
 ## Set LIBS, INCLUDES and metaSMT_AVAILABLE_QF_ABV_SOLVERS  #
 #############################################################
 
 set(metaSMT_AVAILABLE_QF_ABV_SOLVERS "")
 set(metaSMT_INCLUDES ${Boost_INCLUDE_DIRS})
+
+if(SWORD_FOUND)
+  config_find(SWORD ${SWORD_DIR})
+  list(APPEND metaSMT_LIBS ${SWORD_LIBRARIES})
+  list(APPEND metaSMT_INCLUDES ${SWORD_INCLUDE_DIR})
+endif()
 
 if(Boolector_FOUND)
   config_find(Boolector ${Boolector_DIR})
@@ -326,7 +343,7 @@ endif()
 
 if(CUDD_FOUND)
   config_find(CUDD ${CUDD_DIR})
-  list(APPEND metaSMT_LIBS CUDD_obj CUDD_cudd CUDD_dddmp CUDD_epd CUDD_mtr CUDD_st CUDD_util)
+  list(APPEND metaSMT_LIBS ${CUDD_LIBRARIES})
   list(APPEND metaSMT_INCLUDES ${CUDD_INCLUDE_DIR} ${cudd_INCLUDE_DIRS})
 endif()
 
