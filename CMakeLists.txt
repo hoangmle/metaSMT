@@ -92,12 +92,6 @@ if ( WIN32 )
   set(metaSMT_USE_Aiger off)
   set(metaSMT_USE_CW off)
 endif()
-if(metaSMT_USE_SWORD AND NOT APPLE)
-  find_package(SWORD QUIET)
-else()
-  set(SWORD_FOUND 0)
-endif()
-set_package_info(SWORD "solver for SMT QF_BV")
 
 if(metaSMT_USE_Boolector)
   find_package(Boolector QUIET)
@@ -265,23 +259,12 @@ else ()
   set(Doxygen_FOUND 0)
 endif ()
 
-if(SWORD_FOUND)
-  config_find(SWORD ${SWORD_DIR})
-  list(APPEND metaSMT_LIBS ${SWORD_LIBRARIES})
-  list(APPEND metaSMT_INCLUDES ${SWORD_INCLUDE_DIR})
-endif()
 #############################################################
 ## Set LIBS, INCLUDES and metaSMT_AVAILABLE_QF_ABV_SOLVERS  #
 #############################################################
 
 set(metaSMT_AVAILABLE_QF_ABV_SOLVERS "")
 set(metaSMT_INCLUDES ${Boost_INCLUDE_DIRS})
-
-if(SWORD_FOUND)
-  config_find(SWORD ${SWORD_DIR})
-  list(APPEND metaSMT_LIBS ${SWORD_LIBRARIES})
-  list(APPEND metaSMT_INCLUDES ${SWORD_INCLUDE_DIR})
-endif()
 
 if(Boolector_FOUND)
   config_find(Boolector ${Boolector_DIR})
